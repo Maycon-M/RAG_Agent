@@ -15,7 +15,7 @@ load_dotenv()
 llm = ChatOpenAI(model='gpt-5-nano', temperature=0)
 embeddings = OpenAIEmbeddings(model='text-embedding-3-small')
 
-pdf_file = "Trilha-de-Engenharia-de-IA-Agentica.pdf"
+pdf_file = "your_pdf.pdf"
 name_file_without_ext = os.path.splitext(os.path.basename(pdf_file))[0]
 persist_directory = os.path.join(os.getcwd(), "chroma_db")
 
