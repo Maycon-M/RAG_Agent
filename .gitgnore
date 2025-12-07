@@ -1,0 +1,19 @@
+# Python cache e compilados
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ambientes Virtuais
+venv/
+env/
+.venv/
+
+# Variáveis de Ambiente (SEGURANÇA CRÍTICA)
+.env
+
+# Banco de Dados Vetorial (Persistência Local)
+chroma_db/
+
+# Logs e ficheiros de sistema
+*.log
+.DS_Store
