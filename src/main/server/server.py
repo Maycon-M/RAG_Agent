@@ -1,0 +1,91 @@
+
+# FastAPI imports
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
+
+# Middlewares
+from src.main.middlewares.request_id import RequestIdMiddleware
+from src.main.middlewares.request_logging import RequestLoggingMiddleware
+from src.main.middlewares.security_headers import SecurityHeadersMiddleware
+
+# Core
+from src.core.settings import settings
+from src.core.logging_config import setup_logging, get_logger
+
+# Configura o logging conforme as configurações
+setup_logging()
+logger = get_logger(__name__)
+
+
+app = FastAPI(
+    title="AvaliaAI API",
+    version="1.0.0",
+    debug=(settings.ENV != "prd")    
+)
+
+# Middleware de Id de Requisição
+app.add_middleware(RequestIdMiddleware)
+
+# Middleware para confiar em proxies reversos
+@app.middleware("http")
+async def force_https_scheme(request: Request, call_next):
+    if request.headers.get("x-forwarded-proto") == "https":
+        request.scope["scheme"] = "https"
+    response = await call_next(request)
+    return response
+
+# Middleware de segurança de cabeçalhos
+app.add_middleware(
+    SecurityHeadersMiddleware,
+    csp_report_only=settings.CSP_REPORT_ONLY
+)
+
+# Middleware de logging de requisições
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.ALLOW_ORIGINS,
+    allow_credentials=True,
+    allow_methods=settings.ALLOW_METHODS,
+    allow_headers=["*"],
+)
+
+# Middleware de logging de requisições
+app.add_middleware(RequestLoggingMiddleware)
+
+# Manipulador de erros de validação
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """
+    Captura e loga erros de validação do Pydantic (status 422).
+    """
+    logger.error(
+        "Erro de validação (422) na requisição: %s %s - Detalhes: %s",
+        request.method,
+        request.url.path,
+        exc.errors()
+    )
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": exc.errors(),
+            "body": exc.body
+        }
+    )
+    
+# Rota raiz redireciona para health check
+@app.get("/", include_in_schema=False)
+async def root():
+    return RedirectResponse(url="health")
+
+# Rota de health check
+@app.get("/health", tags=["Health"])
+async def health_check():
+    """
+    Rota para verificar a saúde da aplicação.
+    """
+    logger.info("Health check chamado", extra={"component": "health"})
+    return {"status": "ok"}
+
+# ===== OUTRAS ROTAS =====
