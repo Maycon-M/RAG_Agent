@@ -21,3 +21,11 @@ chroma_db/
 # Configurações do IDE
 .vscode/
 .idea/
+
+# Arquivos pdfs
+*.pdf
+
+# Pipenv
+Pipfile.lock
+Pipfile
+
