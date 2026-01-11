@@ -35,6 +35,16 @@ class Settings(BaseSettings):
     # === BCRYPT ===
     BCRYPT_ROUNDS: int = Field(default=12, ge=4, le=31, description="Número de rounds para bcrypt")
     
+    # === JWT ===
+    SECRET_KEY: str = Field(..., description="Chave secreta para assinatura de tokens JWT")
+    JWT_ALGORITHM: str = Field(default="HS256", description="Algoritmo JWT")
+    JWT_ACCESS_TOKEN_TTL: int = Field(default=900, description="TTL do access token em segundos (15 min)")
+    JWT_REFRESH_TOKEN_TTL: int = Field(default=604800, description="TTL do refresh token em segundos (7 dias)")
+    MAX_ACTIVE_SESSIONS: int = Field(default=4, description="Número máximo de sessões ativas por usuário")
+    
+    # === TIMEZONE ===
+    TIME_ZONE: str = Field(default="America/Sao_Paulo", description="Timezone da aplicação")
+    
     @field_validator("ALLOW_ORIGINS")
     @classmethod
     def validate_cors_in_production(cls, v: list[str], info) -> list[str]:
