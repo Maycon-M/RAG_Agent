@@ -65,5 +65,5 @@ CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", \
 
 
 # Instruções para build e run:
-# docker build -t backend_api_avalia_ai -f docker/Dockerfile . 
-# docker run -d -p 8000:8000 --name backend_api_avalia_ai_container backend_api_avalia_ai
+# docker build -t backend_api_corretum_ai -f docker/Dockerfile . 
+# docker run -d -p 8000:8000 --name backend_api_corretum_ai_container backend_api_corretum_ai
