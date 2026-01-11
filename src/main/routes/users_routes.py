@@ -15,6 +15,7 @@ from src.core.logging_config import get_logger
 
 from src.main.composer.users_composer import (
     make_create_user_controller,
+    make_verify_email_controller,
 )
 
 from src.main.dependencies.request_meta import get_caller_meta
@@ -70,4 +71,71 @@ def register_user(
         raise e
     except Exception as e:
         logger.exception("Erro inesperado ao registrar usuário")
+        raise HTTPException(status_code=500, detail="Erro interno do servidor") from e
+
+@router.put(
+    "/verify-email/{uuid}",
+    status_code=200
+)
+def verify_email(
+    request: Request,
+    uuid: str,
+    caller: CallerMeta = Depends(get_caller_meta),
+    db=Depends(get_db),
+):
+    """
+    Endpoint para verificar o email de um usuário e realizar login automático.
+    
+    Args:
+        request (Request): Objeto de requisição FastAPI
+        uuid (str): UUID do usuário a ter o email verificado
+        caller (CallerMeta): Metadados do chamador (injetado via dependência)
+        db (Session): Sessão do banco de dados (injetado via dependência)
+        
+    Returns:
+        JSONResponse: Resposta HTTP com tokens de autenticação
+    """
+    http_request = HttpRequest(
+        db=db,
+        caller=caller,
+        headers=request.headers,
+        param={"uuid": uuid}
+    )
+    
+    controller = make_verify_email_controller()
+    
+    try:
+        http_response: HttpResponse = controller.handle(http_request)
+        
+        # Extrai o refresh_token do body
+        refresh_token = http_response.body.get("refresh_token")
+        
+        # Remove refresh_token do body da resposta
+        response_body = {k: v for k, v in http_response.body.items() if k != "refresh_token"}
+        
+        # Cria resposta JSON
+        response = JSONResponse(
+            status_code=http_response.status_code,
+            content=response_body
+        )
+        
+        # Define cookie com refresh_token
+        if refresh_token:
+            response.set_cookie(
+                key="refresh_token",
+                value=refresh_token,
+                httponly=True,
+                secure=True,
+                samesite="none",
+                path="/auth",
+                max_age=604800
+            )
+        
+        return response
+        
+    except HTTPException as e:
+        logger.error("Erro ao verificar email: %s", str(e.detail))
+        raise e
+    except Exception as e:
+        logger.exception("Erro inesperado ao verificar email")
         raise HTTPException(status_code=500, detail="Erro interno do servidor") from e
