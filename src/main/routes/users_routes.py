@@ -17,6 +17,7 @@ from src.main.composer.users_composer import (
     make_create_user_controller,
     make_verify_email_controller,
     make_resend_verification_email_controller,
+    make_generate_recovery_code_controller,
 )
 
 from src.main.dependencies.request_meta import get_caller_meta
@@ -180,4 +181,45 @@ def resend_verification_email(
         raise e
     except Exception as e:
         logger.exception("Erro inesperado ao reenviar email")
+        raise HTTPException(status_code=500, detail="Erro interno do servidor") from e
+
+@router.post(
+    "/generate-recovery-code",
+    status_code=200
+)
+def generate_recovery_code(
+    request: Request,
+    body: dict = Body(..., examples={"email": "usuario@exemplo.com"}),
+    db=Depends(get_db),
+):
+    """
+    Endpoint para gerar código de recuperação e enviar por email.
+    
+    Args:
+        request (Request): Objeto de requisição FastAPI
+        body (dict): Corpo contendo o email do usuário
+        db (Session): Sessão do banco de dados (injetado via dependência)
+        
+    Returns:
+        JSONResponse: Resposta HTTP com confirmação de envio
+    """
+    http_request = HttpRequest(
+        db=db,
+        headers=request.headers,
+        body=body
+    )
+    
+    controller = make_generate_recovery_code_controller()
+    
+    try:
+        http_response: HttpResponse = controller.handle(http_request)
+        return JSONResponse(
+            status_code=http_response.status_code,
+            content=http_response.body
+        )
+    except HTTPException as e:
+        logger.error("Erro ao gerar código de recuperação: %s", str(e.detail))
+        raise e
+    except Exception as e:
+        logger.exception("Erro inesperado ao gerar código de recuperação")
         raise HTTPException(status_code=500, detail="Erro interno do servidor") from e

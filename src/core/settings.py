@@ -48,6 +48,12 @@ class Settings(BaseSettings):
     # === BREVO (EMAIL) ===
     BREVO_API_KEY: str = Field(..., description="Chave da API Brevo")
     BREVO_VERIFICATION_TEMPLATE_ID: int = Field(..., description="ID do template de verificação de email")
+    BREVO_RECOVERY_CODE_TEMPLATE_ID: int = Field(..., description="ID do template de código de recuperação")
+    
+    # === RECOVERY CODE ===
+    RECOVERY_CODE_LENGTH: int = Field(default=6, description="Tamanho do código de recuperação")
+    RECOVERY_CODE_EXPIRY_MINUTES: int = Field(default=15, description="Minutos até expiração do código")
+    RECOVERY_CODE_MAX_ATTEMPTS: int = Field(default=3, description="Máximo de tentativas de validação")
     
     @field_validator("ALLOW_ORIGINS")
     @classmethod

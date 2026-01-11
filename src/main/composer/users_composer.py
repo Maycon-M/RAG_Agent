@@ -4,10 +4,12 @@ from src.models.repositories.auth_refresh_token_repository import AuthRefreshTok
 from src.services.users.create_user_service import CreateUserService
 from src.services.users.verify_email_service import VerifyEmailService
 from src.services.users.resend_verification_email_service import ResendVerificationEmailService
+from src.services.users.generate_recovery_code_service import GenerateRecoveryCodeService
 
 from src.controllers.users.create_user_controller import CreateUserController
 from src.controllers.users.verify_email_controller import VerifyEmailController
 from src.controllers.users.resend_verification_email_controller import ResendVerificationEmailController
+from src.controllers.users.generate_recovery_code_controller import GenerateRecoveryCodeController
 
 def make_create_user_controller() -> CreateUserController:
     """
@@ -51,3 +53,17 @@ def make_resend_verification_email_controller() -> ResendVerificationEmailContro
     resend_verification_controller = ResendVerificationEmailController(resend_verification_service)
     
     return resend_verification_controller
+
+def make_generate_recovery_code_controller() -> GenerateRecoveryCodeController:
+    """
+    Factory para criar uma instância de GenerateRecoveryCodeController
+    com suas dependências injetadas.
+    
+    Returns:
+        GenerateRecoveryCodeController: Instância do controlador de geração de código
+    """
+    user_repository = UserRepository()
+    generate_recovery_code_service = GenerateRecoveryCodeService(user_repository)
+    generate_recovery_code_controller = GenerateRecoveryCodeController(generate_recovery_code_service)
+    
+    return generate_recovery_code_controller

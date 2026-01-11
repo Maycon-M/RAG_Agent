@@ -132,3 +132,88 @@ class BrevoHandler:
         except Exception as e:
             self.__logger.error("Erro inesperado ao enviar email via Brevo: %s", str(e), exc_info=True)
             return False
+    
+    async def send_recovery_code_email(
+        self,
+        email: str,
+        recovery_code: str,
+        user_name: Optional[str] = None
+    ) -> bool:
+        """
+        Envia email com código de recuperação usando template da Brevo.
+        
+        Primeiro atualiza o atributo RECOVERY_CODE do contato, depois envia o email.
+        
+        Args:
+            email: Email do destinatário
+            recovery_code: Código de recuperação (será setado como atributo do contato)
+            user_name: Nome do usuário (opcional)
+            
+        Returns:
+            bool: True se sucesso, False se falha
+        """
+        # Primeiro, atualiza o atributo RECOVERY_CODE do contato
+        contact_url = f"{self.__base_url}/contacts"
+        contact_payload = {
+            "email": email,
+            "attributes": {
+                "RECOVERY_CODE": recovery_code
+            },
+            "updateEnabled": True
+        }
+        
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                # Atualiza o contato com o código
+                contact_response = await client.post(
+                    contact_url, 
+                    json=contact_payload, 
+                    headers=self.__headers
+                )
+                
+                if contact_response.status_code not in [201, 204]:
+                    self.__logger.error(
+                        "Erro ao atualizar atributo RECOVERY_CODE: status=%s, response=%s",
+                        contact_response.status_code, contact_response.text
+                    )
+                    return False
+                
+                self.__logger.info(
+                    "Atributo RECOVERY_CODE atualizado no contato: email=%s",
+                    email
+                )
+                
+                # Agora envia o email usando o template
+                email_url = f"{self.__base_url}/smtp/email"
+                email_payload = {
+                    "to": [{"email": email, "name": user_name or email}],
+                    "templateId": settings.BREVO_RECOVERY_CODE_TEMPLATE_ID,
+                    "params": {
+                        "USER_NAME": user_name or email
+                    }
+                }
+                
+                email_response = await client.post(
+                    email_url, 
+                    json=email_payload, 
+                    headers=self.__headers
+                )
+                
+                if email_response.status_code == 201:
+                    self.__logger.info(
+                        "Email de código de recuperação enviado via Brevo: email=%s",
+                        email
+                    )
+                    return True
+                self.__logger.error(
+                    "Erro ao enviar código via Brevo: status=%s, response=%s",
+                    email_response.status_code, email_response.text
+                )
+                return False
+                    
+        except httpx.RequestError as e:
+            self.__logger.error("Erro de conexão com Brevo API: %s", str(e), exc_info=True)
+            return False
+        except Exception as e:
+            self.__logger.error("Erro inesperado ao enviar código via Brevo: %s", str(e), exc_info=True)
+            return False
