@@ -20,8 +20,8 @@ class Settings(BaseSettings):
     ALLOW_METHODS: list[str] = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     CSP_REPORT_ONLY: bool = False
     
-    # === DATABASE (POSTGRES/SUPABASE) ===
-    SUPABASE_CONN_STRING: str = Field(..., description="Connection string do PostgreSQL/Supabase")
+    # === DATABASE (POSTGRES) ===
+    POSTGRES_CONN_STRING: str = Field(..., description="Connection string do PostgreSQL")
     
     # === OPENAI ===
     OPENAI_API_KEY: str = Field(..., description="Chave da API OpenAI")
@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     # === CHROMADB ===
     CHROMA_PERSIST_DIRECTORY: str = Field(default="./chroma_db", description="Diretório do ChromaDB")
     CHROMA_COLLECTION_NAME: str = Field(default="documents", description="Nome da coleção")
+    
+    # === BCRYPT ===
+    BCRYPT_ROUNDS: int = Field(default=12, ge=4, le=31, description="Número de rounds para bcrypt")
     
     @field_validator("ALLOW_ORIGINS")
     @classmethod
