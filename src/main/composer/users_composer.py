@@ -3,9 +3,11 @@ from src.models.repositories.auth_refresh_token_repository import AuthRefreshTok
 
 from src.services.users.create_user_service import CreateUserService
 from src.services.users.verify_email_service import VerifyEmailService
+from src.services.users.resend_verification_email_service import ResendVerificationEmailService
 
 from src.controllers.users.create_user_controller import CreateUserController
 from src.controllers.users.verify_email_controller import VerifyEmailController
+from src.controllers.users.resend_verification_email_controller import ResendVerificationEmailController
 
 def make_create_user_controller() -> CreateUserController:
     """
@@ -35,3 +37,17 @@ def make_verify_email_controller() -> VerifyEmailController:
     verify_email_controller = VerifyEmailController(verify_email_service)
     
     return verify_email_controller
+
+def make_resend_verification_email_controller() -> ResendVerificationEmailController:
+    """
+    Factory para criar uma instância de ResendVerificationEmailController
+    com suas dependências injetadas.
+    
+    Returns:
+        ResendVerificationEmailController: Instância do controlador de reenvio de email
+    """
+    user_repository = UserRepository()
+    resend_verification_service = ResendVerificationEmailService(user_repository)
+    resend_verification_controller = ResendVerificationEmailController(resend_verification_service)
+    
+    return resend_verification_controller
