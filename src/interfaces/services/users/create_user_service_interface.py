@@ -15,7 +15,7 @@ class CreateUserServiceInterface(ABC):
     """
     
     @abstractmethod
-    def create_user(self, db: Session, request: UserCreateRequest) -> UserResponse:
+    async def create_user(self, db: Session, request: UserCreateRequest) -> UserResponse:
         """
         Cria um novo usuário.
         

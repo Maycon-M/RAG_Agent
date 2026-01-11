@@ -45,6 +45,10 @@ class Settings(BaseSettings):
     # === TIMEZONE ===
     TIME_ZONE: str = Field(default="America/Sao_Paulo", description="Timezone da aplicação")
     
+    # === BREVO (EMAIL) ===
+    BREVO_API_KEY: str = Field(..., description="Chave da API Brevo")
+    BREVO_VERIFICATION_TEMPLATE_ID: int = Field(..., description="ID do template de verificação de email")
+    
     @field_validator("ALLOW_ORIGINS")
     @classmethod
     def validate_cors_in_production(cls, v: list[str], info) -> list[str]:

@@ -64,16 +64,23 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     """
     Captura e loga erros de validação do Pydantic (status 422).
     """
+    errors = exc.errors()
+    
+    # Remove objetos não serializáveis do ctx
+    for error in errors:
+        if "ctx" in error and "error" in error["ctx"]:
+            error["ctx"]["error"] = str(error["ctx"]["error"])
+    
     logger.error(
         "Erro de validação (422) na requisição: %s %s - Detalhes: %s",
         request.method,
         request.url.path,
-        exc.errors()
+        errors
     )
     return JSONResponse(
         status_code=422,
         content={
-            "detail": exc.errors(),
+            "detail": errors,
             "body": exc.body
         }
     )

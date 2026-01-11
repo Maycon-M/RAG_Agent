@@ -22,9 +22,9 @@ class UserCreateRequest(BaseModel):
     )
     
     user_type: Optional[str] = Field(
-        default="user",
-        description="Tipo de usuário (user, admin, etc)",
-        examples=["user", "admin"]
+        default="teacher",
+        description="Tipo de usuário (admin, teacher, student)",
+        examples=["teacher", "student"]
     )
     
     @field_validator("password")
@@ -72,9 +72,9 @@ class UserCreateRequest(BaseModel):
             ValueError: Se o tipo não for válido
         """
         if v is None:
-            return "user"
+            return "student"
         
-        allowed_types = ["user", "admin", "moderator"]
+        allowed_types = ["admin", "teacher", "student"]
         if v not in allowed_types:
             raise ValueError(f"Tipo de usuário deve ser um de: {', '.join(allowed_types)}")
         
@@ -86,6 +86,6 @@ class UserCreateRequest(BaseModel):
             "example": {
                 "email": "usuario@exemplo.com",
                 "password": "SenhaSegura@123",
-                "user_type": "user"
+                "user_type": "teacher"
             }
         }

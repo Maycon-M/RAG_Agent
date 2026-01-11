@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from fastapi import HTTPException
 
 from src.domain.http.http_request import HttpRequest
@@ -36,6 +37,7 @@ class CreateUserController(ControllerInterface):
         Raises:
             HTTPException: Em caso de erro (409 para email duplicado, 500 para erros de BD)
         """
+        
         db = http_request.db
         caller = http_request.caller
         
@@ -50,8 +52,8 @@ class CreateUserController(ControllerInterface):
             # O body já vem validado como UserCreateRequest pela rota FastAPI
             request = http_request.body
             
-            # Delega ao serviço
-            result = self.__service.create_user(db, request)
+            # Delega ao serviço (agora async)
+            result = asyncio.run(self.__service.create_user(db, request))
             
             self.__logger.info("Usuário criado com sucesso: %s", result.email)
             

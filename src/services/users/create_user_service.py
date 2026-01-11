@@ -17,6 +17,7 @@ from src.errors.domain.already_existing import AlreadyExistingError
 from src.errors.domain.sql_error import SqlError
 
 from src.core.security.hash_password import HashPasswordHandler
+from src.core.brevo_handler import BrevoHandler
 from src.core.logging_config import get_logger
 
 class CreateUserService(CreateUserServiceInterface):
@@ -31,8 +32,9 @@ class CreateUserService(CreateUserServiceInterface):
         self.__repository = repository
         self.__logger = get_logger(__name__)
         self.__hash_handler = HashPasswordHandler()
+        self.__brevo_handler = BrevoHandler()
     
-    def create_user(self, db: Session, request: UserCreateRequest) -> UserResponse:
+    async def create_user(self, db: Session, request: UserCreateRequest) -> UserResponse:
         """
         Cria um novo usuário.
         
@@ -73,6 +75,9 @@ class CreateUserService(CreateUserServiceInterface):
             )
             
             self.__logger.info("Usuário criado com sucesso: ID=%s, email=%s", user.id, user.email)
+            
+            # Cria contato na Brevo e envia email de verificação
+            await self.__send_verification_email(user)
             
             # Formata e retorna a resposta
             return self.__format_user_response(user)
@@ -117,3 +122,46 @@ class CreateUserService(CreateUserServiceInterface):
             UserResponse: Resposta formatada
         """
         return UserResponse.model_validate(user)
+    
+    async def __send_verification_email(self, user: User) -> None:
+        """
+        Envia email de verificação para o usuário via Brevo.
+        
+        Args:
+            user: Entidade do usuário
+        """
+        try:
+            # Cria/atualiza contato na Brevo
+            contact_created = await self.__brevo_handler.create_or_update_contact(
+                email=user.email,
+                user_uuid=user.uuid,
+                user_type=user.user_type
+            )
+            
+            if not contact_created:
+                self.__logger.warning(
+                    "Falha ao criar contato na Brevo para %s, mas continuando...",
+                    user.email
+                )
+            
+            # Envia email de verificação
+            email_sent = await self.__brevo_handler.send_verification_email(
+                email=user.email,
+                user_uuid=user.uuid
+            )
+            
+            if email_sent:
+                self.__logger.info("Email de verificação enviado para %s", user.email)
+            else:
+                self.__logger.warning(
+                    "Falha ao enviar email de verificação para %s",
+                    user.email
+                )
+                
+        except Exception as e:
+            # Não falha o cadastro se o email falhar
+            self.__logger.error(
+                "Erro ao enviar email de verificação para %s: %s",
+                user.email, str(e),
+                exc_info=True
+            )
