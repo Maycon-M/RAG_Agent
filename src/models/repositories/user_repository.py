@@ -623,3 +623,84 @@ class UserRepository(UserRepositoryInterface):
         except SQLAlchemyError as e:
             self.__logger.error("Erro ao restaurar usuário ID %s: %s", user_id, e, exc_info=True)
             raise
+
+    # ==================== RECOVERY CODE OPERATIONS ====================
+
+    def set_recovery_code(
+        self, 
+        db: Session, 
+        user_id: int, 
+        code_hash: str, 
+        expires_at: datetime
+    ) -> User:
+        """
+        Define um código de recuperação para o usuário.
+        
+        Args:
+            db: Sessão do banco de dados
+            user_id: ID do usuário
+            code_hash: Hash do código de recuperação
+            expires_at: Timestamp de expiração do código
+            
+        Returns:
+            User: Usuário atualizado
+        """
+        try:
+            self.__logger.debug("Definindo código de recuperação para usuário ID %s", user_id)
+            return self.update(
+                db,
+                user_id,
+                recovery_code_hash=code_hash,
+                recovery_code_expires_at=expires_at,
+                recovery_code_attempts=0
+            )
+        except SQLAlchemyError as e:
+            self.__logger.error("Erro ao definir código de recuperação ID %s: %s", user_id, e, exc_info=True)
+            raise
+
+    def increment_recovery_code_attempts(self, db: Session, user_id: int) -> User:
+        """
+        Incrementa o contador de tentativas do código de recuperação.
+        
+        Args:
+            db: Sessão do banco de dados
+            user_id: ID do usuário
+            
+        Returns:
+            User: Usuário atualizado
+        """
+        try:
+            self.__logger.debug("Incrementando tentativas de código para usuário ID %s", user_id)
+            user = self.get_by_id(db, user_id)
+            return self.update(
+                db,
+                user_id,
+                recovery_code_attempts=user.recovery_code_attempts + 1
+            )
+        except SQLAlchemyError as e:
+            self.__logger.error("Erro ao incrementar tentativas ID %s: %s", user_id, e, exc_info=True)
+            raise
+
+    def clear_recovery_code(self, db: Session, user_id: int) -> User:
+        """
+        Limpa o código de recuperação do usuário.
+        
+        Args:
+            db: Sessão do banco de dados
+            user_id: ID do usuário
+            
+        Returns:
+            User: Usuário atualizado
+        """
+        try:
+            self.__logger.debug("Limpando código de recuperação do usuário ID %s", user_id)
+            return self.update(
+                db,
+                user_id,
+                recovery_code_hash=None,
+                recovery_code_expires_at=None,
+                recovery_code_attempts=0
+            )
+        except SQLAlchemyError as e:
+            self.__logger.error("Erro ao limpar código de recuperação ID %s: %s", user_id, e, exc_info=True)
+            raise

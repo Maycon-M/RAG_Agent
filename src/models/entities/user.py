@@ -25,6 +25,12 @@ class User(Base):
     
     email_verified: Mapped[bool] = mapped_column(BOOLEAN, nullable=False, default=False)
     
+    recovery_code_hash: Mapped[str] = mapped_column(TEXT, nullable=True)
+    
+    recovery_code_expires_at: Mapped[str] = mapped_column(TIMESTAMP, nullable=True)
+    
+    recovery_code_attempts: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    
     last_login_at: Mapped[str] = mapped_column(TIMESTAMP, nullable=True)
     
     created_at: Mapped[str] = mapped_column(TIMESTAMP, nullable=False)
