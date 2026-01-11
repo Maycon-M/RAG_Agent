@@ -14,6 +14,9 @@ from src.main.middlewares.security_headers import SecurityHeadersMiddleware
 from src.core.settings import settings
 from src.core.logging_config import setup_logging, get_logger
 
+# Rotas
+from src.main.routes.users_routes import router as users_router
+
 # Configura o logging conforme as configurações
 setup_logging()
 logger = get_logger(__name__)
@@ -89,3 +92,4 @@ async def health_check():
     return {"status": "ok"}
 
 # ===== OUTRAS ROTAS =====
+app.include_router(users_router)
