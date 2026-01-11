@@ -40,8 +40,8 @@ class JWTHandler:
         now = datetime.now()
         payload = {
             "sub": subject,
-            "type": "ACCESS",
-            "scopes": scopes or [],
+            "typ": "ACCESS",  # Padronizado como 'typ' (padrão JWT)
+            "scope": scopes or [],  # Padronizado como 'scope' (singular, padrão OAuth)
             "jti": str(uuid4()),
             "iat": now,
             "exp": now + timedelta(seconds=settings.JWT_ACCESS_TOKEN_TTL),
@@ -53,8 +53,8 @@ class JWTHandler:
         now = datetime.now()
         payload = {
             "sub": subject,
-            "type": "REFRESH",
-            "scopes": scopes or [],
+            "typ": "REFRESH",  # Padronizado como 'typ' (padrão JWT)
+            "scope": scopes or [],  # Padronizado como 'scope' (singular, padrão OAuth)
             "jti": str(uuid4()),
             "iat": now,
             "exp": now + timedelta(seconds=settings.JWT_REFRESH_TOKEN_TTL),
