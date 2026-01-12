@@ -217,3 +217,49 @@ class BrevoHandler:
         except Exception as e:
             self.__logger.error("Erro inesperado ao enviar código via Brevo: %s", str(e), exc_info=True)
             return False
+    
+    async def clear_recovery_code(self, email: str) -> bool:
+        """
+        Limpa o atributo RECOVERY_CODE do contato na Brevo.
+        
+        Args:
+            email: Email do contato
+            
+        Returns:
+            bool: True se sucesso, False se falha
+        """
+        contact_url = f"{self.__base_url}/contacts"
+        contact_payload = {
+            "email": email,
+            "attributes": {
+                "RECOVERY_CODE": ""
+            },
+            "updateEnabled": True
+        }
+        
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.post(
+                    contact_url,
+                    json=contact_payload,
+                    headers=self.__headers
+                )
+                
+                if response.status_code in [201, 204]:
+                    self.__logger.info(
+                        "Atributo RECOVERY_CODE limpo no contato: email=%s",
+                        email
+                    )
+                    return True
+                self.__logger.error(
+                    "Erro ao limpar RECOVERY_CODE: status=%s, response=%s",
+                    response.status_code, response.text
+                )
+                return False
+                    
+        except httpx.RequestError as e:
+            self.__logger.error("Erro de conexão com Brevo API: %s", str(e), exc_info=True)
+            return False
+        except Exception as e:
+            self.__logger.error("Erro inesperado ao limpar RECOVERY_CODE: %s", str(e), exc_info=True)
+            return False

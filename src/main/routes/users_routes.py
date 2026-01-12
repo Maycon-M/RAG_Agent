@@ -18,6 +18,8 @@ from src.main.composer.users_composer import (
     make_verify_email_controller,
     make_resend_verification_email_controller,
     make_generate_recovery_code_controller,
+    make_validate_recovery_code_controller,
+    make_reset_password_controller,
 )
 
 from src.main.dependencies.request_meta import get_caller_meta
@@ -222,4 +224,90 @@ def generate_recovery_code(
         raise e
     except Exception as e:
         logger.exception("Erro inesperado ao gerar código de recuperação")
+        raise HTTPException(status_code=500, detail="Erro interno do servidor") from e
+
+@router.post(
+    "/validate-recovery-code",
+    status_code=200
+)
+def validate_recovery_code(
+    request: Request,
+    body: dict = Body(..., example={"email": "usuario@exemplo.com", "code": "123456"}),
+    db=Depends(get_db),
+):
+    """
+    Endpoint para validar código de recuperação.
+    
+    Valida se o código é válido sem limpar (incrementa tentativas se inválido).
+    
+    Args:
+        request (Request): Objeto de requisição FastAPI
+        body (dict): Corpo contendo email e code
+        db (Session): Sessão do banco de dados (injetado via dependência)
+        
+    Returns:
+        JSONResponse: Resposta HTTP com confirmação de validação
+    """
+    http_request = HttpRequest(
+        db=db,
+        headers=request.headers,
+        body=body
+    )
+    
+    controller = make_validate_recovery_code_controller()
+    
+    try:
+        http_response: HttpResponse = controller.handle(http_request)
+        return JSONResponse(
+            status_code=http_response.status_code,
+            content=http_response.body
+        )
+    except HTTPException as e:
+        logger.error("Erro ao validar código de recuperação: %s", str(e.detail))
+        raise e
+    except Exception as e:
+        logger.exception("Erro inesperado ao validar código de recuperação")
+        raise HTTPException(status_code=500, detail="Erro interno do servidor") from e
+
+@router.post(
+    "/password/reset",
+    status_code=200
+)
+def reset_password(
+    request: Request,
+    body: dict = Body(..., example={"email": "usuario@exemplo.com", "code": "123456", "new_password": "novaSenha123"}),
+    db=Depends(get_db),
+):
+    """
+    Endpoint para resetar senha usando código de recuperação.
+    
+    Valida o código, atualiza a senha e limpa o código.
+    
+    Args:
+        request (Request): Objeto de requisição FastAPI
+        body (dict): Corpo contendo email, code e new_password
+        db (Session): Sessão do banco de dados (injetado via dependência)
+        
+    Returns:
+        JSONResponse: Resposta HTTP com confirmação de reset
+    """
+    http_request = HttpRequest(
+        db=db,
+        headers=request.headers,
+        body=body
+    )
+    
+    controller = make_reset_password_controller()
+    
+    try:
+        http_response: HttpResponse = controller.handle(http_request)
+        return JSONResponse(
+            status_code=http_response.status_code,
+            content=http_response.body
+        )
+    except HTTPException as e:
+        logger.error("Erro ao resetar senha: %s", str(e.detail))
+        raise e
+    except Exception as e:
+        logger.exception("Erro inesperado ao resetar senha")
         raise HTTPException(status_code=500, detail="Erro interno do servidor") from e

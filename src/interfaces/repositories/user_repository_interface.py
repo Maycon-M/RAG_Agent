@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from datetime import datetime
 from typing import Optional, Sequence
 from uuid import UUID
 
@@ -370,5 +371,57 @@ class UserRepositoryInterface(ABC):
             
         Returns:
             User: Usuário restaurado
+        """
+        raise NotImplementedError()
+    
+    # ==================== RECOVERY CODE OPERATIONS ====================
+
+    @abstractmethod
+    def set_recovery_code(
+        self, 
+        db: Session, 
+        user_id: int, 
+        code_hash: str, 
+        expires_at: datetime
+    ) -> User:
+        """
+        Define um código de recuperação para o usuário.
+        
+        Args:
+            db: Sessão do banco de dados
+            user_id: ID do usuário
+            code_hash: Hash do código de recuperação
+            expires_at: Timestamp de expiração do código
+            
+        Returns:
+            User: Usuário atualizado
+        """
+        raise NotImplementedError()
+    
+    @abstractmethod
+    def increment_recovery_code_attempts(self, db: Session, user_id: int) -> User:
+        """
+        Incrementa o contador de tentativas do código de recuperação.
+        
+        Args:
+            db: Sessão do banco de dados
+            user_id: ID do usuário
+            
+        Returns:
+            User: Usuário atualizado
+        """
+        raise NotImplementedError()
+    
+    @abstractmethod
+    def clear_recovery_code(self, db: Session, user_id: int) -> User:
+        """
+        Limpa o código de recuperação do usuário.
+        
+        Args:
+            db: Sessão do banco de dados
+            user_id: ID do usuário
+            
+        Returns:
+            User: Usuário atualizado
         """
         raise NotImplementedError()
