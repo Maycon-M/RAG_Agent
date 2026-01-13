@@ -326,6 +326,8 @@ class UserRepository(UserRepositoryInterface):
         *,
         uuid: UUID,
         email: str,
+        first_name: str,
+        last_name: str,
         password_hash: str,
         user_type: str = "user",
         active: bool = True,
@@ -338,6 +340,8 @@ class UserRepository(UserRepositoryInterface):
             db: Sessão do banco de dados
             uuid: UUID do usuário
             email: Email do usuário
+            first_name: Primeiro nome do usuário
+            last_name: Sobrenome do usuário
             password_hash: Senha hash
             user_type: Tipo de usuário
             active: Se o usuário está ativo
@@ -353,6 +357,8 @@ class UserRepository(UserRepositoryInterface):
             user = User(
                 uuid=uuid,
                 email=email,
+                first_name=first_name,
+                last_name=last_name,
                 password_hash=password_hash,
                 user_type=user_type,
                 active=active,

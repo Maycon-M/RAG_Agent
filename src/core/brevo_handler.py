@@ -30,7 +30,9 @@ class BrevoHandler:
     
     async def create_or_update_contact(
         self, 
-        email: str, 
+        email: str,
+        first_name: str,
+        last_name: str,
         user_uuid: UUID,
         user_type: str,
         attributes: Optional[Dict[str, Any]] = None
@@ -40,6 +42,8 @@ class BrevoHandler:
         
         Args:
             email: Email do contato
+            first_name: Primeiro nome do contato
+            last_name: Sobrenome do contato
             user_uuid: UUID do usuário no banco de dados
             user_type: Tipo do usuário (admin, teacher, student)
             attributes: Atributos adicionais do contato
@@ -52,6 +56,8 @@ class BrevoHandler:
         payload = {
             "email": email,
             "attributes": {
+                "NOME": first_name,
+                "SOBRENOME": last_name,
                 "UUID_DB": str(user_uuid),
                 "USER_TYPE": user_type,
                 **(attributes or {})

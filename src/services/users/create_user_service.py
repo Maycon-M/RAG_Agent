@@ -68,6 +68,8 @@ class CreateUserService(CreateUserServiceInterface):
                 db,
                 uuid=uuid4(),
                 email=request.email,
+                first_name=request.first_name,
+                last_name=request.last_name,
                 password_hash=password_hash,
                 user_type=request.user_type,
                 active=True,
@@ -134,6 +136,8 @@ class CreateUserService(CreateUserServiceInterface):
             # Cria/atualiza contato na Brevo
             contact_created = await self.__brevo_handler.create_or_update_contact(
                 email=user.email,
+                first_name=user.first_name,
+                last_name=user.last_name,
                 user_uuid=user.uuid,
                 user_type=user.user_type
             )

@@ -7,6 +7,22 @@ class UserCreateRequest(BaseModel):
     Modelo de requisição para criação de usuário.
     """
     
+    first_name: str = Field(
+        ...,
+        min_length=1,
+        max_length=100,
+        description="Nome do usuário",
+        examples=["João"]
+    )
+    
+    last_name: str = Field(
+        ...,
+        min_length=1,
+        max_length=150,
+        description="Sobrenome do usuário",
+        examples=["Silva"]
+    )
+    
     email: EmailStr = Field(
         ...,
         description="Email do usuário",
@@ -84,6 +100,8 @@ class UserCreateRequest(BaseModel):
         """Configuração do modelo Pydantic."""
         json_schema_extra = {
             "example": {
+                "first_name": "João",
+                "last_name": "Silva",
                 "email": "usuario@exemplo.com",
                 "password": "SenhaSegura@123",
                 "user_type": "teacher"

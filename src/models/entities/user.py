@@ -20,6 +20,8 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(TEXT, nullable=False)
     
     user_type: Mapped[str] = mapped_column(VARCHAR(50), nullable=False, default="user")
+    first_name: Mapped[str] = mapped_column(TEXT, nullable=False)
+    last_name: Mapped[str] = mapped_column(TEXT, nullable=False)
     
     active: Mapped[bool] = mapped_column(BOOLEAN, nullable=False, default=True)
     

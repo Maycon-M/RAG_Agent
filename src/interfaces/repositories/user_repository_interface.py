@@ -199,6 +199,8 @@ class UserRepositoryInterface(ABC):
         *,
         uuid: UUID,
         email: str,
+        first_name: str,
+        last_name: str,
         password_hash: str,
         user_type: str = "user",
         active: bool = True,
@@ -211,6 +213,8 @@ class UserRepositoryInterface(ABC):
             db: Sessão do banco de dados
             uuid: UUID do usuário
             email: Email do usuário
+            first_name: Primeiro nome do usuário
+            last_name: Sobrenome do usuário
             password_hash: Senha hash
             user_type: Tipo de usuário
             active: Se o usuário está ativo
