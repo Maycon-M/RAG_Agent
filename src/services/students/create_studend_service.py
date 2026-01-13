@@ -3,7 +3,7 @@ from __future__ import annotations
 from uuid import uuid4
 
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
+
 
 from src.interfaces.repositories.student_repository_interface import StudentRepositoryInterface
 from src.interfaces.services.students.create_studend_service_interface import CreateStudentServiceInterface
@@ -13,7 +13,6 @@ from src.domain.responses.students.student_create_response import StudentCreateR
 
 from src.models.entities.student import Student
 
-from src.errors.domain.already_existing import AlreadyExistingError
 from src.errors.domain.sql_error import SqlError
 
 from src.core.logging_config import get_logger
@@ -46,21 +45,12 @@ class CreateStudentService(CreateStudentServiceInterface):
                 db,
                 uuid=uuid4(),
                 full_name=request.full_name,
-                email=request.email,
-                registration_number=request.registration_number
+                email=request.email
             )
             
             self.__logger.info("Aluno criado com sucesso: %s", student.uuid)
             return self._format_response(student)
-        
-        except IntegrityError as e:
-            self.__logger.error("Erro de integridade ao criar aluno: %s", e, exc_info=True)
-            raise AlreadyExistingError(
-                message="Matricula já está cadastrada",
-                context={"matricula": request.registration_number},
-                cause=e
-            ) from e
-        
+                
         except Exception as e:
             self.__logger.error("Erro inesperado ao criar aluno: %s", e)
             raise SqlError(

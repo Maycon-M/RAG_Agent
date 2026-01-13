@@ -19,13 +19,6 @@ class StudentCreateRequest(BaseModel):
         examples=["aluno@exemplo.com"]
     )
     
-    registration_number: str | None = Field(
-        default=None,
-        min_length=1,
-        max_length=50,
-        description="Número de matrícula do aluno",
-        examples=["20230001"]
-    )
     
     @field_validator("full_name")
     @classmethod

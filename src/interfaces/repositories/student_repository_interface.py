@@ -65,20 +65,6 @@ class StudentRepositoryInterface(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def get_by_registration_number(self, db: Session, registration_number: str) -> Optional[Student]:
-        """
-        Busca estudante por número de matrícula.
-        
-        Args:
-            db: Sessão do banco de dados
-            registration_number: Número de matrícula do estudante
-            
-        Returns:
-            Optional[Student]: Estudante encontrado ou None
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
     def get_all(
         self,
         db: Session,
@@ -167,20 +153,6 @@ class StudentRepositoryInterface(ABC):
         """
         raise NotImplementedError()
 
-    @abstractmethod
-    def exists_by_registration_number(self, db: Session, registration_number: str) -> bool:
-        """
-        Verifica se existe estudante com o número de matrícula.
-        
-        Args:
-            db: Sessão do banco de dados
-            registration_number: Número de matrícula a verificar
-            
-        Returns:
-            bool: True se existir, False caso contrário
-        """
-        raise NotImplementedError()
-
     # ==================== CREATE OPERATIONS ====================
 
     @abstractmethod
@@ -191,7 +163,6 @@ class StudentRepositoryInterface(ABC):
         uuid: UUID,
         full_name: str,
         email: Optional[str] = None,
-        registration_number: Optional[str] = None,
         active: bool = True
     ) -> Student:
         """
@@ -202,7 +173,6 @@ class StudentRepositoryInterface(ABC):
             uuid: UUID do estudante
             full_name: Nome completo do estudante
             email: Email do estudante
-            registration_number: Número de matrícula do estudante
             active: Se o estudante está ativo
             
         Returns:

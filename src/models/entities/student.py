@@ -19,7 +19,6 @@ class Student(Base):
     full_name: Mapped[str] = mapped_column(VARCHAR(255), nullable=False)
     
     email: Mapped[str] = mapped_column(VARCHAR(255), nullable=True, index=True)
-    registration_number: Mapped[str] = mapped_column(VARCHAR(100), unique=True, nullable=True, index=True)
     
     active: Mapped[bool] = mapped_column(BOOLEAN, nullable=False, default=True)
     

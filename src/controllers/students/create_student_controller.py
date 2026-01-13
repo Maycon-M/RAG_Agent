@@ -9,7 +9,6 @@ from src.domain.http.http_response import HttpResponse
 from src.interfaces.controllers.controllers_interface import ControllerInterface
 from src.interfaces.services.students.create_studend_service_interface import CreateStudentServiceInterface
 
-from src.errors.domain.already_existing import AlreadyExistingError
 from src.errors.domain.sql_error import SqlError
 
 from src.core.logging_config import get_logger
@@ -60,17 +59,6 @@ class CreateStudentController(ControllerInterface):
                 status_code=201,
                 body=result
             )
-        
-        except AlreadyExistingError as existing_err:
-            self.__logger.warning("Tentativa de criar aluno com matrícula duplicada: %s", existing_err, exc_info=True)
-            raise HTTPException(
-                status_code=409,
-                detail={
-                    "error": "Aluno já está cadastrado",
-                    "code": existing_err.code,
-                    "context": existing_err.context
-                }
-            ) from existing_err
         
         except SqlError as sql_err:
             self.__logger.error("Erro de banco de dados ao criar aluno: %s", sql_err, exc_info=True)

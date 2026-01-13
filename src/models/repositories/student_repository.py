@@ -106,28 +106,6 @@ class StudentRepository(StudentRepositoryInterface):
             self.__logger.error("Erro ao buscar estudante por email %s: %s", email, e, exc_info=True)
             raise
 
-    def get_by_registration_number(self, db: Session, registration_number: str) -> Optional[Student]:
-        """
-        Busca estudante por número de matrícula.
-        
-        Args:
-            db: Sessão do banco de dados
-            registration_number: Número de matrícula do estudante
-            
-        Returns:
-            Optional[Student]: Estudante encontrado ou None
-        """
-        try:
-            self.__logger.debug("Buscando estudante por matrícula: %s", registration_number)
-            stmt = select(Student).where(Student.registration_number == registration_number)
-            return db.execute(stmt).scalar_one_or_none()
-        except SQLAlchemyError as e:
-            self.__logger.error(
-                "Erro ao buscar estudante por matrícula %s: %s", 
-                registration_number, e, exc_info=True
-            )
-            raise
-
     def get_all(
         self,
         db: Session,
@@ -271,31 +249,6 @@ class StudentRepository(StudentRepositoryInterface):
             self.__logger.error("Erro ao verificar existência do email %s: %s", email, e, exc_info=True)
             raise
 
-    def exists_by_registration_number(self, db: Session, registration_number: str) -> bool:
-        """
-        Verifica se existe estudante com o número de matrícula.
-        
-        Args:
-            db: Sessão do banco de dados
-            registration_number: Número de matrícula a verificar
-            
-        Returns:
-            bool: True se existir, False caso contrário
-        """
-        try:
-            stmt = (
-                select(func.count(Student.id))  # pylint: disable=not-callable
-                .where(Student.registration_number == registration_number)
-            )
-            count = db.execute(stmt).scalar()
-            return (count or 0) > 0
-        except SQLAlchemyError as e:
-            self.__logger.error(
-                "Erro ao verificar existência da matrícula %s: %s", 
-                registration_number, e, exc_info=True
-            )
-            raise
-
     # ==================== CREATE OPERATIONS ====================
 
     def create(
@@ -305,7 +258,6 @@ class StudentRepository(StudentRepositoryInterface):
         uuid: UUID,
         full_name: str,
         email: Optional[str] = None,
-        registration_number: Optional[str] = None,
         active: bool = True
     ) -> Student:
         """
@@ -316,7 +268,6 @@ class StudentRepository(StudentRepositoryInterface):
             uuid: UUID do estudante
             full_name: Nome completo do estudante
             email: Email do estudante
-            registration_number: Número de matrícula do estudante
             active: Se o estudante está ativo
             
         Returns:
@@ -330,7 +281,6 @@ class StudentRepository(StudentRepositoryInterface):
                 uuid=uuid,
                 full_name=full_name,
                 email=email,
-                registration_number=registration_number,
                 active=active,
                 created_at=now,
                 updated_at=now
