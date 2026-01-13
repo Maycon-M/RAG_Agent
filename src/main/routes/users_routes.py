@@ -232,7 +232,7 @@ def generate_recovery_code(
 )
 def validate_recovery_code(
     request: Request,
-    body: dict = Body(..., example={"email": "usuario@exemplo.com", "code": "123456"}),
+    body: dict = Body(..., examples={"email": "usuario@exemplo.com", "code": "123456"}),
     db=Depends(get_db),
 ):
     """
@@ -275,7 +275,7 @@ def validate_recovery_code(
 )
 def reset_password(
     request: Request,
-    body: dict = Body(..., example={"email": "usuario@exemplo.com", "code": "123456", "new_password": "novaSenha123"}),
+    body: dict = Body(..., examples={"email": "usuario@exemplo.com", "code": "123456", "new_password": "novaSenha123"}),
     db=Depends(get_db),
 ):
     """
