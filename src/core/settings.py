@@ -17,7 +17,7 @@ class Settings(BaseSettings):
         "http://localhost:5173", 
         "http://localhost:8000"
     ]
-    ALLOW_METHODS: list[str] = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    ALLOW_METHODS: list[str] = ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"]
     CSP_REPORT_ONLY: bool = False
     
     # === DATABASE (POSTGRES) ===

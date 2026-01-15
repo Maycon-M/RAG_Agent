@@ -17,7 +17,7 @@ from src.core.logging_config import setup_logging, get_logger
 # Rotas
 from src.main.routes.auth_routes import router as auth_router
 from src.main.routes.users_routes import router as users_router
-from src.main.routes.students_routes import router as students_router
+from src.main.routes.classes_routes import router as classes_router
 
 # Configura o logging conforme as configurações
 setup_logging()
@@ -103,4 +103,4 @@ async def health_check():
 # ===== OUTRAS ROTAS =====
 app.include_router(auth_router)
 app.include_router(users_router)
-app.include_router(students_router)
+app.include_router(classes_router)
