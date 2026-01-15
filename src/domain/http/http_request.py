@@ -13,8 +13,7 @@ class HttpRequest:
         headers: Dict = None,
         caller: Optional[CallerMeta] = None,
         token_infos: Dict = None,
-        db: Session = None,
-        db_protheus: Optional[Session] = None
+        db: Session = None
         ) -> None:
         
         self.body = body
@@ -22,6 +21,5 @@ class HttpRequest:
         self.headers = headers
         self.token_infos = token_infos
         self.db = db
-        self.db_protheus = db_protheus
         self.caller = caller
         
